@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/products/**").permitAll()
                         .requestMatchers("/orders/**", "/cart/**", "/payment/**", "/invoice/**").hasAnyAuthority("USER","ADMIN")
+                        .requestMatchers("/invoice/**").authenticated()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
