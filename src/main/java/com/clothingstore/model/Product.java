@@ -24,4 +24,5 @@ public class Product {
     private double price;
     private int stock;
     private String imageUrl; // product image URL
+    private String category;
 }

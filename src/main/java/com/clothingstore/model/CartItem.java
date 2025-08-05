@@ -1,3 +1,4 @@
+
 package com.clothingstore.model;
 
 import jakarta.persistence.Entity;
