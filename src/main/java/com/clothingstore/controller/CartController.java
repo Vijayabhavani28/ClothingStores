@@ -1,66 +1,54 @@
 package com.clothingstore.controller;
 
-import com.clothingstore.model.CartItem;
-import com.clothingstore.model.Product;
-import com.clothingstore.model.User;
-import com.clothingstore.repository.CartRepository;
-import com.clothingstore.repository.ProductRepository;
-import com.clothingstore.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.clothingstore.model.Cart;
+import com.clothingstore.model.User;
+import com.clothingstore.service.CartService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/cart")
 @RequiredArgsConstructor
 public class CartController {
 
-    private final CartRepository cartRepository;
-    private final ProductRepository productRepository;
-    private final UserRepository userRepository;
+    private final CartService cartService;
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addToCart(@AuthenticationPrincipal User user, @RequestParam Long productId) {
-        Product product = productRepository.findById(productId).orElse(null);
-        if (product == null) {
-            return ResponseEntity.badRequest().body("Product not found");
-        }
-
-        CartItem cartItem = cartRepository.findByUser(user)
-                .stream()
-                .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst()
-                .orElse(new CartItem());
-
-        if (cartItem.getId() == null) {
-            cartItem.setUser(user);
-            cartItem.setProduct(product);
-            cartItem.setQuantity(1);
-        } else {
-            cartItem.setQuantity(cartItem.getQuantity() + 1);
-        }
-
-        cartRepository.save(cartItem);
-        return ResponseEntity.ok("Product added to cart");
-    }
-
+    // Get user's cart
     @GetMapping
-    public List<CartItem> getCart(@AuthenticationPrincipal User user) {
-        return cartRepository.findByUser(user);
+    public ResponseEntity<Cart> getCart(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(cartService.getCart(user));
     }
 
-    @DeleteMapping("/remove/{id}")
-    public ResponseEntity<?> removeFromCart(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        cartRepository.deleteById(id);
-        return ResponseEntity.ok("Item removed from cart");
+    // Add product to cart
+    @PostMapping("/add")
+    public ResponseEntity<Cart> addToCart(
+            @AuthenticationPrincipal User user,
+            @RequestParam Long productId,
+            @RequestParam(defaultValue = "1") int quantity) {
+        return ResponseEntity.ok(cartService.addToCart(user, productId, quantity));
     }
 
+    // Remove product from cart
+    @DeleteMapping("/remove")
+    public ResponseEntity<Cart> removeFromCart(
+            @AuthenticationPrincipal User user,
+            @RequestParam Long productId) {
+        return ResponseEntity.ok(cartService.removeFromCart(user, productId));
+    }
+
+    // Clear the cart
     @DeleteMapping("/clear")
-    public ResponseEntity<?> clearCart(@AuthenticationPrincipal User user) {
-        cartRepository.deleteByUser(user);
-        return ResponseEntity.ok("Cart cleared");
+    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal User user) {
+        cartService.clearCart(user);
+        return ResponseEntity.noContent().build();
     }
 }

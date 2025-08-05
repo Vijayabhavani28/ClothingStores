@@ -1,12 +1,12 @@
 package com.clothingstore.repository;
 
-import com.clothingstore.model.CartItem;
-import com.clothingstore.model.User;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import com.clothingstore.model.Cart;
+import com.clothingstore.model.User;
 
-public interface CartRepository extends JpaRepository<CartItem, Long> {
-    List<CartItem> findByUser(User user);
-    void deleteByUser(User user);
+public interface CartRepository extends JpaRepository<Cart, Long> {
+    Optional<Cart> findByUser(User user);
 }

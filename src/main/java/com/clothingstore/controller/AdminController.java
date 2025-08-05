@@ -1,6 +1,10 @@
 package com.clothingstore.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -11,11 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clothingstore.model.Order;
 import com.clothingstore.model.Product;
-import com.clothingstore.repository.OrderRepository;
-import com.clothingstore.repository.ProductRepository;
-import com.clothingstore.service.EmailService;
+import com.clothingstore.service.OrderService;
+import com.clothingstore.service.ProductService;
 
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,26 +25,39 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final OrderRepository orderRepository;
-    private final EmailService emailService;
-    private final ProductRepository productRepository;
-//    private final Product product;
-    
-    
+    private final ProductService productService;
+    private final OrderService orderService;
 
+    // ================== PRODUCT MANAGEMENT ==================
+
+    // Add a product
     @PostMapping("/products")
-    public ResponseEntity<?> addProduct(@RequestBody Product product) {
-        productRepository.save(product);
-        return ResponseEntity.ok("Product added successfully");
+    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
+        return ResponseEntity.ok(productService.addProduct(product));
     }
 
-    @PutMapping("/orders/{id}/status")
-    public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestParam String status) throws MessagingException {
-        Order order = orderRepository.findById(id).orElseThrow();
-        order.setStatus(status);
-        orderRepository.save(order);
+    // Update a product
+    @PutMapping("/products/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        return ResponseEntity.ok(productService.updateProduct(id, product));
+    }
 
-        emailService.sendOrderStatusUpdate(order.getUser().getEmail(), order.getUser().getName(), order.getId(), status);
-        return ResponseEntity.ok("Order status updated and email sent");
+    // Delete a product
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Get all products
+    @GetMapping("/products")
+    public ResponseEntity<List<Order>> getAllOrders() {
+        return ResponseEntity.ok(orderService.getAllOrders());
+    }
+
+    // Update order status
+    @PutMapping("/orders/{orderId}/status")
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long orderId, @RequestParam String status) {
+        return ResponseEntity.ok(orderService.updateOrderStatus(orderId, status));
     }
 }
