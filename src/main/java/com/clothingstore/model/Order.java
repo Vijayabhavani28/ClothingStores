@@ -3,6 +3,8 @@ package com.clothingstore.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,12 +30,14 @@ public class Order {
     private Long id;
 
     @ManyToOne
+    @JsonIgnore
     private User user;
 
     private String status; // e.g. PENDING, PAID, SHIPPED, DELIVERED
     private double totalPrice;
     private LocalDateTime orderDate;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<OrderItem> items;
 
 }

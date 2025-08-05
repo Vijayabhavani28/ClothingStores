@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clothingstore.dto.OrderResponseDTO;
 import com.clothingstore.model.Order;
 import com.clothingstore.model.Product;
 import com.clothingstore.service.OrderService;
@@ -49,11 +50,16 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    // Get all products
-    @GetMapping("/products")
-    public ResponseEntity<List<Order>> getAllOrders() {
-        return ResponseEntity.ok(orderService.getAllOrders());
+//    // Get all products
+//    @GetMapping("/products")
+//    public ResponseEntity<List<Order>> getAllProducts() {
+//        return ResponseEntity.ok(orderService.getAllProducts());
+//    }
+    @GetMapping("/orders")
+    public List<OrderResponseDTO> getAllOrders() {
+        return orderService.getAllOrdersForAdmin();
     }
+    
 
     // Update order status
     @PutMapping("/orders/{orderId}/status")
